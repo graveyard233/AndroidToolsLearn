@@ -38,6 +38,12 @@ public class NetWorkManager {
         return instances;
     }
 
+    public static void setNull(){
+        instances = null;
+        retrofit = null;
+        System.gc();
+    }
+
     private OkHttpClient initClient(){
         if (okHttpClient == null){
             synchronized (NetWorkManager.class){
@@ -68,14 +74,14 @@ public class NetWorkManager {
         return okHttpClient;
     }
 
-    public Retrofit initRetrofit(){
+    public Retrofit initRetrofit(String baseUrl){
         if (retrofit == null){
             synchronized (NetWorkManager.class){
                 if (retrofit == null){
                     //创建retrofit
                     retrofit = new Retrofit.Builder()
                             .client(initClient())
-                            .baseUrl(IWanAndroid.BASE_URL)
+                            .baseUrl(baseUrl)
                             .addConverterFactory(GsonConverterFactory.create())
                             .build();
                 }
@@ -84,13 +90,13 @@ public class NetWorkManager {
         return retrofit;
     }
 
-    public Retrofit initRetrofitWithRxJava(){
+    public Retrofit initRetrofitWithRxJava(String baseUrl){
         if (retrofit == null){
             synchronized (NetWorkManager.class){
                 if (retrofit == null){
                     retrofit = new Retrofit.Builder()
                             .client(initClient())
-                            .baseUrl(IWanAndroid.BASE_URL)
+                            .baseUrl(baseUrl)
                             .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                             .addConverterFactory(GsonConverterFactory.create())
                             .build();

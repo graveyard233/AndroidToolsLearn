@@ -57,7 +57,7 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
     }
 
     private void tryRetrofit() {
-        IWanAndroid service = NetWorkManager.getInstances().initRetrofit().create(IWanAndroid.class);
+        IWanAndroid service = NetWorkManager.getInstances().initRetrofit(IWanAndroid.BASE_URL).create(IWanAndroid.class);
         service.homeBanner().enqueue(new Callback<WanMsg<List<WanHomeBanner>>>() {
             @Override
             public void onResponse(Call<WanMsg<List<WanHomeBanner>>> call, Response<WanMsg<List<WanHomeBanner>>> response) {
@@ -72,6 +72,9 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
                     } catch (Exception e){
                         Log.e(TAG, "onResponse error: " + e.getMessage());
                     }
+                    finally {
+                        NetWorkManager.setNull();
+                    }
                 }
             }
 
@@ -83,7 +86,8 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
     }
 
     private void tryRetrofitWithRxJava(){
-        NetWorkManager.getInstances().initRetrofitWithRxJava().create(IWanAndroid.class)
+        NetWorkManager.getInstances().initRetrofitWithRxJava(IWanAndroid.BASE_URL)
+                .create(IWanAndroid.class)
                 .homeBannerWithRxJava()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -110,7 +114,7 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
 
                     @Override
                     public void onComplete() {
-
+                        NetWorkManager.setNull();
                     }
                 });
 
