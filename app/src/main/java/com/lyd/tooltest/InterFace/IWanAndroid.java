@@ -5,6 +5,7 @@ import com.lyd.tooltest.Entity.WanAndroid.WanMsg;
 
 import java.util.List;
 
+import io.reactivex.rxjava3.core.Observable;
 import retrofit2.Call;
 import retrofit2.http.GET;
 
@@ -13,4 +14,7 @@ public interface IWanAndroid {
 
     @GET("banner/json")
     Call<WanMsg<List<WanHomeBanner>>> homeBanner();
+
+    @GET("banner/json")
+    Observable<WanMsg<List<WanHomeBanner>>> homeBannerWithRxJava();
 }

@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NetWorkManager {
@@ -75,6 +76,22 @@ public class NetWorkManager {
                     retrofit = new Retrofit.Builder()
                             .client(initClient())
                             .baseUrl(IWanAndroid.BASE_URL)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
+                }
+            }
+        }
+        return retrofit;
+    }
+
+    public Retrofit initRetrofitWithRxJava(){
+        if (retrofit == null){
+            synchronized (NetWorkManager.class){
+                if (retrofit == null){
+                    retrofit = new Retrofit.Builder()
+                            .client(initClient())
+                            .baseUrl(IWanAndroid.BASE_URL)
+                            .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                             .addConverterFactory(GsonConverterFactory.create())
                             .build();
                 }

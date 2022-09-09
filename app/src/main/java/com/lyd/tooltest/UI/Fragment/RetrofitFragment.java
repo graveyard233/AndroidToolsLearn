@@ -13,6 +13,12 @@ import com.lyd.tooltest.R;
 
 import java.util.List;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -21,12 +27,15 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
     private static final String TAG = "RetrofitFragment";
 
     Button btn_pure;
+    Button btn_rxjava;
 
     @Override
     protected void initViews() {
         btn_pure = find(R.id.ret_btn_pure);
+        btn_rxjava = find(R.id.ret_btn_rxJava);
 
         btn_pure.setOnClickListener(this);
+        btn_rxjava.setOnClickListener(this);
     }
 
     @Override
@@ -39,6 +48,9 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
         switch (v.getId()){
             case R.id.ret_btn_pure:
                 tryRetrofit();
+                break;
+            case R.id.ret_btn_rxJava:
+                tryRetrofitWithRxJava();
                 break;
             default:break;
         }
@@ -68,5 +80,39 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
                 Log.e(TAG, "onFailure: " + t.getMessage() );
             }
         });
+    }
+
+    private void tryRetrofitWithRxJava(){
+        NetWorkManager.getInstances().initRetrofitWithRxJava().create(IWanAndroid.class)
+                .homeBannerWithRxJava()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<WanMsg<List<WanHomeBanner>>>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NonNull WanMsg<List<WanHomeBanner>> listWanMsg) {
+                        if (listWanMsg != null && listWanMsg.getData() != null){
+                            for (WanHomeBanner b :
+                                    listWanMsg.getData()) {
+                                Log.i(TAG, "onNext: " + b.toString());
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        Log.e(TAG, "onError: " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
     }
 }

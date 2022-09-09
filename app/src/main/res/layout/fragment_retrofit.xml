@@ -11,4 +11,11 @@
         android:layout_width="250dp"
         android:layout_height="60dp"/>
 
+    <Button
+        android:id="@+id/ret_btn_rxJava"
+        android:text="With RxJava"
+        android:layout_gravity="center"
+        android:layout_width="250dp"
+        android:layout_height="60dp"/>
+
 </LinearLayout>
