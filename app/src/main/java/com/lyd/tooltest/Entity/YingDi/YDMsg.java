@@ -20,4 +20,12 @@ public class YDMsg<T> {
     public void setSuccess(boolean success) {
         this.success = success;
     }
+
+    @Override
+    public String toString() {
+        return "YDMsg{" +
+                "data=" + data +
+                ", success=" + success +
+                '}';
+    }
 }

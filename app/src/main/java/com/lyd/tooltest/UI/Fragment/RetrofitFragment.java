@@ -4,21 +4,30 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.gson.Gson;
 import com.lyd.tooltest.Base.BaseFragment;
 import com.lyd.tooltest.Entity.WanAndroid.WanHomeBanner;
 import com.lyd.tooltest.Entity.WanAndroid.WanMsg;
+import com.lyd.tooltest.Entity.YingDi.HSCard;
+import com.lyd.tooltest.Entity.YingDi.YDMsg;
 import com.lyd.tooltest.InterFace.IWanAndroid;
+import com.lyd.tooltest.InterFace.IYingDi;
 import com.lyd.tooltest.NetWork.NetWorkManager;
 import com.lyd.tooltest.R;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observer;
-import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -47,7 +56,8 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.ret_btn_pure:
-                tryRetrofit();
+//                tryRetrofit();
+                tryRetrofit_getCards();
                 break;
             case R.id.ret_btn_rxJava:
                 tryRetrofitWithRxJava();
@@ -118,5 +128,61 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
                     }
                 });
 
+    }
+
+    private void tryRetrofit_getCards(){
+        HashMap<String,String> headerMap = new HashMap<>();
+        headerMap.put("Accept","*/*");
+        headerMap.put("Accept-Language", "zh-CN,zh;q=0.9");
+        headerMap.put("Connection", "keep-alive");
+        headerMap.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        headerMap.put("Origin", "https://iyingdi.com");
+        headerMap.put("Referer", "https://iyingdi.com/");
+        headerMap.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36");
+
+
+        HashMap<String,String> formMap = new HashMap<>();
+        formMap.put("ignoreHero","1");
+        formMap.put("statistic","total");
+        formMap.put("order", "-series,+mana");
+        formMap.put("token","");
+        formMap.put("page","0");
+        formMap.put("size","10");
+        formMap.put("clazz","法术");
+
+        /**
+         * form 还有其他的检索规则 表单如下
+         * "series","48,49" 这个是系列的检索，48和49是系列的标记，这里选择了两个系列
+         * "manaNormal","5" 这个是费用消耗
+         * "faction","Hunter" 职业英雄检索,这里选择了猎人
+         * "name_rule","战吼" 规则检索
+         * "name","法术卷积者" 卡名检索
+         * "wild","1" 赛制检索：狂野
+         * "standard","1" 赛制检索：标准
+         * "rarity","稀有" 稀有度检索
+         * "manaMore","9" 费用为9+时用的检索
+         * "clazz","法术" 卡牌类别
+         * */
+
+        IYingDi service = NetWorkManager.getInstances().initRetrofit(IYingDi.API2_URL).create(IYingDi.class);
+        service.getHearthStoneCard(headerMap,formMap).enqueue(new Callback<YDMsg<List<HSCard>>>() {
+            @Override
+            public void onResponse(Call<YDMsg<List<HSCard>>> call, Response<YDMsg<List<HSCard>>> response) {
+                if (response.isSuccessful()){
+                    if (response.body() != null && response.body().isSuccess()){
+                        for (HSCard card :
+                                response.body().getData().getCards()) {
+                            Log.i(TAG, "cards: " + card.toString());
+                        }
+                    }
+                }
+                NetWorkManager.setNull();
+            }
+
+            @Override
+            public void onFailure(Call<YDMsg<List<HSCard>>> call, Throwable t) {
+                NetWorkManager.setNull();
+            }
+        });
     }
 }

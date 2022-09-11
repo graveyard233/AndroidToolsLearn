@@ -5,7 +5,7 @@ import java.util.List;
 public class YDData<T> {
     private int total;
 
-    private List<T> list;
+    private T cards;
 
     public int getTotal() {
         return total;
@@ -15,11 +15,19 @@ public class YDData<T> {
         this.total = total;
     }
 
-    public List<T> getList() {
-        return list;
+    public T getCards() {
+        return cards;
     }
 
-    public void setList(List<T> list) {
-        this.list = list;
+    public void setCards(T cards) {
+        this.cards = cards;
+    }
+
+    @Override
+    public String toString() {
+        return "YDData{" +
+                "total=" + total +
+                ", list=" + cards +
+                '}';
     }
 }

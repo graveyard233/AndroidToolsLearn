@@ -1,6 +1,8 @@
 package com.lyd.tooltest.Entity.YingDi;
 
-public class HSCard {
+import java.io.Serializable;
+
+public class HSCard implements Serializable {
     private int arena;
 
     private String articleId;
@@ -519,5 +521,63 @@ public class HSCard {
 
     public void setWild(int wild) {
         this.wild = wild;
+    }
+
+    @Override
+    public String toString() {
+        return "HSCard{" +
+                "arena=" + arena +
+                ", articleId='" + articleId + '\'' +
+                ", artist='" + artist + '\'' +
+                ", attack=" + attack +
+                ", cfaction='" + cfaction + '\'' +
+                ", classic=" + classic +
+                ", clazz='" + clazz + '\'' +
+                ", cname='" + cname + '\'' +
+                ", deckable=" + deckable +
+                ", decompose=" + decompose +
+                ", description='" + description + '\'' +
+                ", eclazz='" + eclazz + '\'' +
+                ", edescription='" + edescription + '\'' +
+                ", ename='" + ename + '\'' +
+                ", erule='" + erule + '\'' +
+                ", faction='" + faction + '\'' +
+                ", factions='" + factions + '\'' +
+                ", faq='" + faq + '\'' +
+                ", forge=" + forge +
+                ", gameid=" + gameid +
+                ", goldCard=" + goldCard +
+                ", goldDecompose=" + goldDecompose +
+                ", goldForge=" + goldForge +
+                ", hp=" + hp +
+                ", id=" + id +
+                ", img='" + img + '\'' +
+                ", mana=" + mana +
+                ", race='" + race + '\'' +
+                ", rarity='" + rarity + '\'' +
+                ", relatedCard='" + relatedCard + '\'' +
+                ", relatedType='" + relatedType + '\'' +
+                ", rule='" + rule + '\'' +
+                ", score=" + score +
+                ", series=" + series +
+                ", seriesAbbr='" + seriesAbbr + '\'' +
+                ", seriesName='" + seriesName + '\'' +
+                ", seriesSize=" + seriesSize +
+                ", sindex=" + sindex +
+                ", size=" + size +
+                ", standard=" + standard +
+                ", task=" + task +
+                ", tclazz='" + tclazz + '\'' +
+                ", tdescription='" + tdescription + '\'' +
+                ", tfaction='" + tfaction + '\'' +
+                ", thumbnail='" + thumbnail + '\'' +
+                ", tname='" + tname + '\'' +
+                ", topicId='" + topicId + '\'' +
+                ", trule='" + trule + '\'' +
+                ", unpackable=" + unpackable +
+                ", updated=" + updated +
+                ", visible=" + visible +
+                ", wild=" + wild +
+                '}';
     }
 }
