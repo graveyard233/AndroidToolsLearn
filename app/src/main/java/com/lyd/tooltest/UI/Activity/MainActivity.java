@@ -11,6 +11,7 @@ import com.lyd.tooltest.Base.BaseActivity;
 import com.lyd.tooltest.R;
 import com.lyd.tooltest.UI.Fragment.EventBusFragment;
 import com.lyd.tooltest.UI.Fragment.RetrofitFragment;
+import com.lyd.tooltest.UI.Fragment.RxJavaFragment;
 
 import java.util.ArrayList;
 
@@ -18,7 +19,7 @@ public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
     private ArrayList<Fragment> fragments = new ArrayList<>();
-    private static final String[] titles = new String[] {"Retrofit","EventBus"};
+    private static final String[] titles = new String[] {"Retrofit","RxJava","EventBus"};
     private ViewPager viewPager;
     private SlidingTabLayout tabLayout;
 
@@ -28,6 +29,7 @@ public class MainActivity extends BaseActivity {
         tabLayout = findViewById(R.id.main_tabLayout);
 
         fragments.add(new RetrofitFragment());
+        fragments.add(new RxJavaFragment());
         fragments.add(new EventBusFragment());
 
         tabLayout.setViewPager(viewPager,titles,this,fragments);

@@ -1,8 +1,6 @@
-package com.lyd.tooltest.Entity.YingDi;
+package com.lyd.tooltest.Entity.YingDi.Cards;
 
-import java.util.List;
-
-public class YDData<T> {
+public class YDCardData<T> {
     private int total;
 
     private T cards;

@@ -19,8 +19,8 @@
         app:tl_textSelectColor="@color/深竹月_浅色"
         app:tl_textUnselectColor="@color/水貂灰"
         app:tl_tab_space_equal="true"
-        android:paddingRight="100dp"
-        android:paddingLeft="100dp"
+        android:paddingRight="50dp"
+        android:paddingLeft="50dp"
         app:tl_textBold="BOTH"
         />
 

@@ -4,19 +4,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import com.google.gson.Gson;
 import com.lyd.tooltest.Base.BaseFragment;
 import com.lyd.tooltest.Entity.WanAndroid.WanHomeBanner;
 import com.lyd.tooltest.Entity.WanAndroid.WanMsg;
-import com.lyd.tooltest.Entity.YingDi.HSCard;
+import com.lyd.tooltest.Entity.YingDi.Cards.HSCard;
+import com.lyd.tooltest.Entity.YingDi.Cards.YDCardData;
+import com.lyd.tooltest.Entity.YingDi.Decks.HSDeck;
+import com.lyd.tooltest.Entity.YingDi.Decks.YDDeskData;
 import com.lyd.tooltest.Entity.YingDi.YDMsg;
 import com.lyd.tooltest.InterFace.IWanAndroid;
 import com.lyd.tooltest.InterFace.IYingDi;
 import com.lyd.tooltest.NetWork.NetWorkManager;
 import com.lyd.tooltest.R;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,9 +25,6 @@ import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -60,7 +57,8 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
                 tryRetrofit_getCards();
                 break;
             case R.id.ret_btn_rxJava:
-                tryRetrofitWithRxJava();
+//                tryRetrofitWithRxJava();
+                tryRetrofitWithRxJava_getHSDecks();
                 break;
             default:break;
         }
@@ -150,7 +148,7 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
         formMap.put("size","10");
         formMap.put("clazz","法术");
 
-        /**
+         /*
          * form 还有其他的检索规则 表单如下
          * "series","48,49" 这个是系列的检索，48和49是系列的标记，这里选择了两个系列
          * "manaNormal","5" 这个是费用消耗
@@ -165,24 +163,73 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
          * */
 
         IYingDi service = NetWorkManager.getInstances().initRetrofit(IYingDi.API2_URL).create(IYingDi.class);
-        service.getHearthStoneCard(headerMap,formMap).enqueue(new Callback<YDMsg<List<HSCard>>>() {
+        service.getHearthStoneCard(headerMap,formMap).enqueue(new Callback<YDMsg<YDCardData<List<HSCard>>>>() {
             @Override
-            public void onResponse(Call<YDMsg<List<HSCard>>> call, Response<YDMsg<List<HSCard>>> response) {
+            public void onResponse(Call<YDMsg<YDCardData<List<HSCard>>>> call, Response<YDMsg<YDCardData<List<HSCard>>>> response) {
                 if (response.isSuccessful()){
-                    if (response.body() != null && response.body().isSuccess()){
+                    if (response.body().isSuccess()){
                         for (HSCard card :
                                 response.body().getData().getCards()) {
                             Log.i(TAG, "cards: " + card.toString());
                         }
                     }
                 }
+
                 NetWorkManager.setNull();
             }
 
             @Override
-            public void onFailure(Call<YDMsg<List<HSCard>>> call, Throwable t) {
+            public void onFailure(Call<YDMsg<YDCardData<List<HSCard>>>> call, Throwable t) {
                 NetWorkManager.setNull();
             }
         });
+    }
+
+    private void tryRetrofitWithRxJava_getHSDecks(){
+        HashMap<String,String> queryMap = new HashMap<>();
+        queryMap.put("token","");
+        queryMap.put("page","0");
+        queryMap.put("size","7");
+        queryMap.put("total","1");
+        queryMap.put("format","狂野");
+        queryMap.put("name","开门");
+
+        /*
+        * "order","hot/time" 按热度和最新时间来检索
+        * "faction","Mage" 按职业检索
+        * "name","开门" 按字段检索
+        * */
+        
+        NetWorkManager.getInstances().initRetrofitWithRxJava(IYingDi.API2_URL)
+                .create(IYingDi.class)
+                .getHearthStoneDeck(queryMap)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<YDMsg<List<YDDeskData<HSDeck>>>>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        
+                    }
+
+                    @Override
+                    public void onNext(@NonNull YDMsg<List<YDDeskData<HSDeck>>> listYDMsg) {
+                        if (listYDMsg != null && listYDMsg.isSuccess()){
+                            for (YDDeskData<HSDeck> deckItem :
+                                    listYDMsg.getData()) {
+                                Log.i(TAG, "onNext: " + deckItem.toString());
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        Log.e(TAG, "onError: " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        NetWorkManager.setNull();
+                    }
+                });
     }
 }

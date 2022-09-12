@@ -1,4 +1,4 @@
-package com.lyd.tooltest.Entity.YingDi;
+package com.lyd.tooltest.Entity.YingDi.Cards;
 
 import java.io.Serializable;
 
@@ -41,7 +41,7 @@ public class HSCard implements Serializable {
 
     private int forge;
 
-    private int gameid;
+    private int gameid;  //游戏内唯一标识符 DBF IDs
 
     private int goldCard;
 
