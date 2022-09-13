@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.lyd.tooltest.Base.BaseFragment;
 import com.lyd.tooltest.Entity.WanAndroid.WanHomeBanner;
 import com.lyd.tooltest.Entity.WanAndroid.WanMsg;
@@ -16,6 +17,10 @@ import com.lyd.tooltest.InterFace.IWanAndroid;
 import com.lyd.tooltest.InterFace.IYingDi;
 import com.lyd.tooltest.NetWork.NetWorkManager;
 import com.lyd.tooltest.R;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +42,7 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
 
     @Override
     protected void initViews() {
+        EventBus.getDefault().register(this);
         btn_pure = find(R.id.ret_btn_pure);
         btn_rxjava = find(R.id.ret_btn_rxJava);
 
@@ -58,7 +64,7 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
                 break;
             case R.id.ret_btn_rxJava:
 //                tryRetrofitWithRxJava();
-                tryRetrofitWithRxJava_getHSDecks();
+                tryRetrofitWithRxJava_getHSDeckList();
                 break;
             default:break;
         }
@@ -185,7 +191,7 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
         });
     }
 
-    private void tryRetrofitWithRxJava_getHSDecks(){
+    private void tryRetrofitWithRxJava_getHSDeckList(){
         HashMap<String,String> queryMap = new HashMap<>();
         queryMap.put("token","");
         queryMap.put("page","0");
@@ -202,7 +208,7 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
         
         NetWorkManager.getInstances().initRetrofitWithRxJava(IYingDi.API2_URL)
                 .create(IYingDi.class)
-                .getHearthStoneDeck(queryMap)
+                .getHearthStoneDeckList(queryMap)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<YDMsg<List<YDDeskData<HSDeck>>>>() {
@@ -231,5 +237,17 @@ public class RetrofitFragment extends BaseFragment implements View.OnClickListen
                         NetWorkManager.setNull();
                     }
                 });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onReceiveMsg(String s){
+        ToastUtils.make().setDurationIsLong(true).show(TAG + ": " + s);
+        Log.i(TAG, "onReceiveMsg: " + s);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 }

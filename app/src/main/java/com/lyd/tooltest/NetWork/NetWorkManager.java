@@ -23,7 +23,7 @@ public class NetWorkManager {
     private static volatile OkHttpClient okHttpClient;
     private static volatile Retrofit retrofit;
 
-    private static int TIME_OUT = 30;//超时时间
+    private static final int TIME_OUT = 30;//超时时间
 
     private NetWorkManager() {}
 

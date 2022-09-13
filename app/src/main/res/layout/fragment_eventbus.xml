@@ -9,4 +9,10 @@
         android:layout_height="150dp"
         android:background="@color/深竹月_浅色"/>
 
+    <Button
+        android:id="@+id/eve_btn_send"
+        android:text="send"
+        android:layout_gravity="center"
+        android:layout_width="250dp"
+        android:layout_height="75dp"/>
 </LinearLayout>

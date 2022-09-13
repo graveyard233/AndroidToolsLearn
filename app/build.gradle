@@ -45,4 +45,11 @@ dependencies {
     implementation 'com.squareup.retrofit2:adapter-rxjava3:2.9.0' //rxjava支持
     implementation "io.reactivex.rxjava3:rxjava:3.1.5" //rxjava
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0' //切线程用
+
+
+    implementation 'com.blankj:utilcodex:1.31.0' //工具类
+
+    implementation "com.github.kongzue.DialogX:DialogX:0.0.46.beta9" //dialog
+
+    implementation "org.greenrobot:eventbus:3.3.1"
 }
