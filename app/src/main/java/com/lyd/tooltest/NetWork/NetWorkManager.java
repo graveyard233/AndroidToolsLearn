@@ -54,7 +54,7 @@ public class NetWorkManager {
                         public void log(@NonNull String s) {
                             try {
                                 Log.e(TAG, URLDecoder.decode(s,"utf-8"));
-                            } catch (UnsupportedEncodingException e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                                 Log.e(TAG, "catch log: " + s );
                             }
