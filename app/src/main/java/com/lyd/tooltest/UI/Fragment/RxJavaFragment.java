@@ -16,6 +16,10 @@ import androidx.annotation.NonNull;
 import com.just.agentweb.AgentWeb;
 import com.just.agentweb.WebViewClient;
 import com.lyd.tooltest.Base.BaseFragment;
+import com.lyd.tooltest.Entity.YingDi.Comment.CommentItem;
+import com.lyd.tooltest.Entity.YingDi.Comment.CommentList;
+import com.lyd.tooltest.Entity.YingDi.Comment.CommentsNode;
+import com.lyd.tooltest.Entity.YingDi.Comment.CommentsNodeBuilder;
 import com.lyd.tooltest.JsFile.MyJs;
 import com.lyd.tooltest.R;
 
@@ -24,6 +28,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -47,7 +54,7 @@ public class RxJavaFragment extends BaseFragment {
     protected void initViews() {
         linear = find(R.id.rxj_linearLayout);
 
-        setWebView("https://iyingdi.com/tz/post/5219116");//5219071
+        setWebView("https://iyingdi.com/tz/post/5221599");
 
     }
 
@@ -75,7 +82,7 @@ public class RxJavaFragment extends BaseFragment {
                     Log.i("TAG", "shouldInterceptRequest: " + request.getUrl().toString());
                     Message message = new Message();
                     message.what = GET_COMMENT_DELAY;
-//                    handler.sendMessage(message);
+                    handler.sendMessage(message);
 
                 }
 
@@ -99,10 +106,6 @@ public class RxJavaFragment extends BaseFragment {
                 }
             });
 
-
-            Message message = new Message();
-            message.what = GET_COMMENT_DELAY;
-            handler.sendMessage(message);
         }
     };
 
@@ -114,6 +117,7 @@ public class RxJavaFragment extends BaseFragment {
                 .createAgentWeb()
                 .ready()
                 .go(url);
+
     }
 
     private void getComments(AgentWeb webView){
@@ -129,24 +133,40 @@ public class RxJavaFragment extends BaseFragment {
 //                                    Log.i("TAG", "comments: " + comments.toString());
                         Elements boxes = comments.select("div.comments-box");
 //                                    Log.i("TAG", "boxes size: " + boxes.size());
-                        if (boxes.size() == 1){// 等于1的话就有可能没评论或者现在网页端还没异步加载出来
+                        if (boxes.size() == 1){// 等于1的话就有可能 1.没评论 2.网页端还没异步加载出来 3.没热评
                             if (boxes.get(0).select("span.select").get(0).text().equals("全部评论 0条")){
                                 Log.e("TAG", "这个帖子没有评论");
                             } else {
                                 //有评论，分为两个情况来讨论，
                                 // 一是没有热评，只有普通评论，也只有一个box，所以要看评论量，也可以直接找
                                 // 二是但还没加载出来，所以要再等一下再获取
-                                Log.e("TAG", "有评论，但还没加载出来，等一下再拿 ");
-                                Log.i("TAG", boxes.get(0).toString());
-                                Message message = new Message();
-                                message.what = GET_COMMENT_DELAY;
-//                                handler.sendMessageDelayed(message,1000);
+                                Elements div_empty = comments.select("div.m-40");
+                                if (div_empty.size() == 0){//不存在div.m-40，评论已经加载好了，而且是没有热评的，这一块可以获取评论数据
+                                    Log.i("TAG", "有数据了 空评论被移除了，可以拿数据，这个评论没有热评");
+                                    CommentList<CommentsNode<CommentItem>> commentList = new CommentList<>(null,0,
+                                            toEntity(getNormalCommentsList(comments)));
+                                    commentList.printNormalComments(commentList.getNormal_comments());
+                                } else if (div_empty.size() == 1){//div.m-40还存在，有评论但数据没有加载好，应该等一下再获取一次
+                                    Log.i("TAG", "有评论但数据没有加载好，应该等一下再获取一次");
+                                    Message message = new Message();
+                                    message.what = GET_COMMENT_DELAY;
+                                    //注释掉，省的反复获取
+                                handler.sendMessageDelayed(message,1000);
+                                }
+
                             }
                         } else { //box 的size 不等于1，即这个帖子有评论了，可以拿其中的数据
-                            Log.d("TAG", "数据来了");
-                            for (int i = 0; i < boxes.size(); i++) {
-                                Log.i("TAG", "boxes size: " + boxes.get(i).toString());
-                            }
+                            Log.d("TAG", "带热评，有两个box数据来了");
+
+                            CommentList<CommentsNode<CommentItem>> commentList = new CommentList<>(toEntity(getHotCommentsList(boxes)),//先拿热评，热评在第一个box里面
+                                    toEntity(getHotCommentsList(boxes)).size(),
+                                    toEntity(getNormalCommentsList(comments)));
+                            commentList.printHotComments(commentList.getHot_comments());
+
+                            Log.i("TAG", "  ");
+
+                            commentList.printNormalComments(commentList.getNormal_comments());
+
                         }
 
                     } catch (Exception e){
@@ -157,6 +177,35 @@ public class RxJavaFragment extends BaseFragment {
 
             }
         });
+    }
+
+    private Elements getHotCommentsList(Elements boxes){
+        return boxes.get(0).select("div.px-30")
+                .get(0).select("div.comment-item-component");
+    }
+
+    private Elements getNormalCommentsList(Element div){
+        return div.select("div.comments-box").get(div.select("div.comments-box").size() == 2 ? 1 : 0)
+        .nextElementSibling()
+                .child(0).select("div.comment-item-component");
+    }
+
+    /**
+     * 需要传入可靠的comment-item-component的list
+     * */
+    private List<CommentsNode<CommentItem>> toEntity(Elements comment_item_list){
+        List<CommentsNode<CommentItem>> tempList = new ArrayList<>();
+
+        for (Element e :
+                comment_item_list) {
+            tempList.add(CommentsNodeBuilder.getInstance()
+                    .initBaseNode()
+                    .buildMain(e)
+                    .buildReply(e)
+                    .getNode());
+        }
+
+        return tempList;
     }
 
     private Handler handler = new Handler(Looper.getMainLooper()){
